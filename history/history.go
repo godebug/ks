@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -11,7 +12,7 @@ import (
 )
 
 type History struct {
-	items []*item
+	Items []*item
 }
 
 type item struct {
@@ -40,6 +41,8 @@ func NewHistory(file string) (*History, error) {
 		return nil, err
 	}
 	r := csv.NewReader(f)
+	cnt := 1
+	var past int64
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -52,7 +55,16 @@ func NewHistory(file string) (*History, error) {
 		if err != nil {
 			return nil, err
 		}
-		out.items = append(out.items, i)
+		cnt++
+		if past != i.Series {
+			cnt = 1
+		}
+		past = i.Series
+		i.Time = time.Date(i.Time.Year(), i.Time.Month(), i.Time.Day(), 0, 0, 0, 0, time.UTC)
+		i.Time = i.Time.Add(time.Duration(cnt*5) * time.Minute)
+		log.Println(i.Series, i.Id, i.Time.Format("02.01.2006 15:04:05"))
+
+		out.Items = append(out.Items, i)
 	}
 	return &out, nil
 }
@@ -63,6 +75,7 @@ func makeItem(in []string) (out *item, err error) {
 	if err != nil {
 		return nil, err
 	}
+
 	i64, err := strconv.ParseInt(in[1], 10, 64)
 	if err != nil {
 		return nil, err
@@ -73,6 +86,7 @@ func makeItem(in []string) (out *item, err error) {
 		return nil, err
 	}
 	out.Series = i64
+
 	for i := 3; i < 11; i++ {
 		i64, err = strconv.ParseInt(in[i], 10, 64)
 		if err != nil {
