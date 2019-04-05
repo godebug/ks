@@ -41,7 +41,8 @@ func NewHistory(file string) (*History, error) {
 		return nil, err
 	}
 	r := csv.NewReader(f)
-	cnt := 1
+	const topDraw = 287
+	cnt := topDraw
 	var past int64
 	for {
 		record, err := r.Read()
@@ -55,9 +56,9 @@ func NewHistory(file string) (*History, error) {
 		if err != nil {
 			return nil, err
 		}
-		cnt++
+		cnt--
 		if past != i.Series {
-			cnt = 1
+			cnt = topDraw
 		}
 		past = i.Series
 		i.Time = time.Date(i.Time.Year(), i.Time.Month(), i.Time.Day(), 0, 0, 0, 0, time.UTC)
