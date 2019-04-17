@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"errors"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -63,7 +62,7 @@ func NewHistory(file string) (*History, error) {
 		past = i.Series
 		i.Time = time.Date(i.Time.Year(), i.Time.Month(), i.Time.Day(), 0, 0, 0, 0, time.UTC)
 		i.Time = i.Time.Add(time.Duration(cnt*5) * time.Minute)
-		log.Println(i.Series, i.Id, i.Time.Format("02.01.2006 15:04:05"))
+		//log.Println(i.Series, i.Id, i.Time.Format("02.01.2006 15:04:05"))
 
 		out.Items = append(out.Items, i)
 	}
